@@ -73,6 +73,19 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
             ]
         );
 
+        $this->add_control(
+            'directions_icon',
+            [
+                'label' => __('Directions Icon', 'destiny-destination'),
+                'type' => \Elementor\Controls_Manager::MEDIA,
+                'default' => [
+                    'url' => '', // Will use inline SVG as fallback
+                ],
+                'media_types' => ['svg'],
+                'description' => __('Upload a custom SVG icon for the directions link, or leave empty for default.', 'destiny-destination'),
+            ]
+        );
+
         $this->end_controls_section();
 
         // Style Section
@@ -95,12 +108,55 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
             ]
         );
 
+        $this->add_control(
+            'route_subtitle_color',
+            [
+                'label' => __('Route Subtitle Color', 'destiny-destination'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#888',
+                'selectors' => [
+                    '{{WRAPPER}} .destiny-route-subtitle' => 'color: {{VALUE}};',
+                ],
+            ]
+        );
+
         $this->add_group_control(
             \Elementor\Group_Control_Typography::get_type(),
             [
                 'name' => 'typography',
                 'label' => __('Typography', 'destiny-destination'),
                 'selector' => '{{WRAPPER}} .destiny-destination-widget',
+            ]
+        );
+
+        $this->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            [
+                'name' => 'subtitle_typography',
+                'label' => __('Route Subtitle Typography', 'destiny-destination'),
+                'selector' => '{{WRAPPER}} .destiny-route-subtitle',
+            ]
+        );
+
+        $this->add_control(
+            'icon_size',
+            [
+                'label' => __('Directions Icon Size', 'destiny-destination'),
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'size_units' => ['px', 'em', 'rem'],
+                'range' => [
+                    'px' => ['min' => 10, 'max' => 64],
+                    'em' => ['min' => 0.5, 'max' => 4, 'step' => 0.1],
+                    'rem' => ['min' => 0.5, 'max' => 4, 'step' => 0.1],
+                ],
+                'default' => [
+                    'unit' => 'px',
+                    'size' => 16,
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .destiny-directions-icon' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+                    '{{WRAPPER}} .destiny-directions-icon img' => 'width: {{SIZE}}{{UNIT}}; height: {{SIZE}}{{UNIT}};',
+                ],
             ]
         );
 
@@ -114,16 +170,22 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
     {
         $settings = $this->get_settings_for_display();
         $unique_id = 'destiny-destination-' . $this->get_id();
+        $icon_svg = '';
+        if (!empty($settings['directions_icon']['url'])) {
+            // If user uploaded an SVG, use <img>
+            $icon_svg = '<img src="' . esc_url($settings['directions_icon']['url']) . '" alt="Directions" class="destiny-directions-icon" style="width:16px;height:16px;vertical-align:middle;" />';
+        } else {
+            // Default SVG
+            $icon_svg = '<svg class="destiny-directions-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/></svg>';
+        }
 ?>
         <div class="destiny-destination-widget" id="<?php echo esc_attr($unique_id); ?>">
             <div class="destiny-loading">
                 <span><?php echo __('Loading...', 'destiny-destination'); ?></span>
             </div>
-
             <div class="destiny-error">
                 <span><?php echo __('Unable to get location', 'destiny-destination'); ?></span>
             </div>
-
             <div class="destiny-results">
                 <div class="destiny-route-subtitle">
                     <span class="destiny-source-label"></span>
@@ -131,16 +193,16 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
                     <span class="destiny-destination-label" title="Moränvägen 13, 186 40 Vallentuna, Sweden">Verkstad</span>
                 </div>
                 <div class="destiny-data-info">
-                <span class="destiny-info"></span>
-                <a href="#" class="destiny-directions-link" target="_blank">
-                    <svg class="destiny-directions-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
-                    </svg>
-                </a>
+                    <span class="destiny-info">
+                        <span class="destiny-time-value">15 min</span>
+                        <span class="destiny-distance-value"> (12.5 km)</span>
+                    </span>
+                    <a href="#" class="destiny-directions-link" target="_blank">
+                        <?php echo $icon_svg; ?>
+                    </a>
                 </div>
             </div>
         </div>
-
         <script>
             jQuery(document).ready(function($) {
                 var widget = $('#<?php echo esc_attr($unique_id); ?>');
@@ -178,21 +240,26 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
                     widget.find('.destiny-results').show();
                     widget.find('.destiny-loading, .destiny-error').hide();
 
-                    var timeText = data.duration_in_traffic || data.duration;
-                    var distanceText = data.distance ? ' (' + data.distance + ')' : '';
-                    var color = colorForTraffic(data.duration, data.duration_in_traffic);
-                    var infoElem = widget.find('.destiny-info');
-                    // Only color the time, not the distance
-                    infoElem.html('<span class="destiny-time-value" style="color:' + (color ? color : '') + '">' + timeText + '</span>' + distanceText);
+                    let timeText = data.duration_in_traffic || data.duration;
+                    let distanceText = data.distance ? ' (' + data.distance + ')' : '';
+                    let color = colorForTraffic(data.duration, data.duration_in_traffic);
+                    let infoElem = widget.find('.destiny-info');
+                    let timeElem = widget.find('.destiny-time-value');
+                    let distanceElem = widget.find('.destiny-distance-value');
+                    timeElem.css('color', color);
+                    timeElem.text(timeText);
+                    distanceElem.text(distanceText);
+
+        
                 }
 
                 function updateDirectionsLink(origin) {
-                    var url = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(destination) + '&origin=' + encodeURIComponent(origin);
+                    let url = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(destination) + '&origin=' + encodeURIComponent(origin);
                     widget.find('.destiny-directions-link').attr('href', url);
                 }
 
                 function setSourceLabel(source, usedFallback) {
-                    var label = usedFallback ? source : 'Din position';
+                    let label = usedFallback ? source : 'Din position';
                     widget.find('.destiny-source-label').text(label);
                 }
 
@@ -248,15 +315,29 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
     ?>
         <#
         var unique_id = 'destiny-destination-' + view.model.id;
+        var icon = '';
+        if (settings.directions_icon && settings.directions_icon.url) {
+            icon = '<img src="' + settings.directions_icon.url + '" alt="Directions" class="destiny-directions-icon" style="width:16px;height:16px;vertical-align:middle;" />';
+        } else {
+            icon = `<svg class=\"destiny-directions-icon\" xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\"><path fill=\"currentColor\" d=\"M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z\"/></svg>`;
+        }
         #>
-        <div class="destiny-destination-widget" id="{{ unique_id }}" style="display: inline-flex; align-items: center; gap: 8px;">
+        <div class="destiny-destination-widget" id="{{ unique_id }}">
             <div class="destiny-results">
-                <span class="destiny-info">15 min (12.5 km)</span>
-                <a href="#" class="destiny-directions-link" target="_blank" style="text-decoration: none;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" style="vertical-align: middle;">
-                        <path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/>
-                    </svg>
-                </a>
+                <div class="destiny-route-subtitle">
+                    <span class="destiny-source-label">Din position</span>
+                    <svg class="destiny-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="currentColor" d="M10 17l5-5-5-5v10z"/></svg>
+                    <span class="destiny-destination-label" title="Moränvägen 13, 186 40 Vallentuna, Sweden">Verkstad</span>
+                </div>
+                <div class="destiny-data-info">
+                    <span class="destiny-info">
+                        <span class="destiny-time-value" style="color:green;">15 min</span>
+                        <span class="destiny-distance-value"> (12.5 km)</span>
+                    </span>
+                    <a href="#" class="destiny-directions-link" target="_blank">
+                        {{{ icon }}}
+                    </a>
+                </div>
             </div>
         </div>
     <?php
