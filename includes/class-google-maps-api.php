@@ -90,11 +90,12 @@ class Destiny_Google_Maps_API
         $api_url = 'https://maps.googleapis.com/maps/api/distancematrix/json';
 
         $params = array(
-            'origins' => $formatted_origin,  // Use formatted origin
-            'destinations' => $this->destination,  // Remove urlencode() - http_build_query will handle it
+            'origins' => $formatted_origin,
+            'destinations' => $this->destination,
             'units' => 'metric',
             'mode' => 'driving',
-            'language' => 'sv', // Swedish
+            'language' => 'sv',
+            'departure_time' => 'now', // Enable traffic-based duration
             'key' => $this->api_key
         );
 
@@ -182,13 +183,20 @@ class Destiny_Google_Maps_API
             );
         }
 
-        // Log the successful result
+        // Get both normal and traffic durations
+        $duration = isset($element['duration']['text']) ? $element['duration']['text'] : null;
+        $duration_value = isset($element['duration']['value']) ? $element['duration']['value'] : null;
+        $duration_in_traffic = isset($element['duration_in_traffic']['text']) ? $element['duration_in_traffic']['text'] : $duration;
+        $duration_in_traffic_value = isset($element['duration_in_traffic']['value']) ? $element['duration_in_traffic']['value'] : $duration_value;
+
         $result = array(
             'status' => 'success',
             'distance' => $element['distance']['text'],
-            'duration' => $element['duration']['text'],
-            'distance_value' => $element['distance']['value'],
-            'duration_value' => $element['duration']['value']
+            'duration' => $duration, // normal
+            'duration_value' => $duration_value,
+            'duration_in_traffic' => $duration_in_traffic, // with traffic
+            'duration_in_traffic_value' => $duration_in_traffic_value,
+            'distance_value' => $element['distance']['value']
         );
 
         if (class_exists('Destiny_Destination')) {
@@ -212,13 +220,15 @@ class Destiny_Google_Maps_API
         // Generate somewhat realistic mock data based on common Swedish distances
         $mock_distances = array('8.2 km', '12.5 km', '15.3 km', '6.7 km', '21.1 km');
         $mock_durations = array('12 min', '18 min', '23 min', '9 min', '28 min');
-
+        $mock_durations_traffic = array('14 min', '22 min', '30 min', '11 min', '40 min'); // Simulate traffic
         $index = abs(crc32($origin)) % count($mock_distances);
-
         $result = array(
             'status' => 'success',
             'distance' => $mock_distances[$index],
             'duration' => $mock_durations[$index],
+            'duration_value' => $mock_durations[$index], // Not used, but for compatibility
+            'duration_in_traffic' => $mock_durations_traffic[$index],
+            'duration_in_traffic_value' => $mock_durations_traffic[$index],
             'mock' => true
         );
 

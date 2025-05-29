@@ -1,18 +1,17 @@
 /* Destiny Destination Widget Styles */
 .destiny-destination-widget {
-    background: #f9f9f9;
-    border: 1px solid #e1e1e1;
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+   
     transition: all 0.3s ease;
 }
-
-.destiny-destination-widget:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
+.destiny-data-info{
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap:10px;
+   
 }
+
 
 .destiny-destination-title {
     margin: 0 0 15px 0;
@@ -64,9 +63,9 @@
 }
 
 .destiny-results {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 5px;
     padding: 10px 0;
 }
 
@@ -102,6 +101,33 @@
     padding: 5px 12px;
     border-radius: 20px;
     border: 1px solid #b3d9ff;
+}
+
+.destiny-route-subtitle {
+    font-size: 12px;
+    color: #888;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-bottom: 2px;
+}
+
+.destiny-chevron {
+    vertical-align: middle;
+    opacity: 0.7;
+}
+
+.destiny-destination-label {
+    cursor: help;
+    border-bottom: 1px dotted #888;
+}
+
+.destiny-directions-link {
+    text-decoration: none;
+}
+
+.destiny-directions-icon {
+    vertical-align: middle;
 }
 
 /* Responsive Design */
@@ -151,37 +177,3 @@
     }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-    .destiny-destination-widget {
-        background: #2c2c2c;
-        border-color: #444;
-        color: #fff;
-    }
-    
-    .destiny-destination-title {
-        color: #fff;
-        border-bottom-color: #007cba;
-    }
-    
-    .destiny-distance,
-    .destiny-duration {
-        background: #3c3c3c;
-        border-color: #555;
-    }
-    
-    .destiny-distance:hover,
-    .destiny-duration:hover {
-        background: #444;
-    }
-    
-    .destiny-label {
-        color: #fff;
-    }
-    
-    .destiny-error p {
-        background: #4a1a1a;
-        color: #ff6b6b;
-        border-color: #d63638;
-    }
-} 
