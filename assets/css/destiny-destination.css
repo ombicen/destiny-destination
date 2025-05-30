@@ -1,6 +1,8 @@
 /* Destiny Destination Widget Styles */
 .destiny-destination-widget {
     transition: all 0.3s ease;
+    display: inline-flex;
+    min-width: 200px;
 }
 
 /* State-based display control */
@@ -12,6 +14,7 @@
 
 .destiny-destination-widget.is-loading .destiny-loading {
     display: flex;
+    width: 100%;
 }
 
 .destiny-destination-widget.is-error .destiny-error {

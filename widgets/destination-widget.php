@@ -315,6 +315,12 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
         $destination_short_name = $this->get_setting_with_default($settings, 'destination_short_name', self::DEFAULT_DESTINATION_SHORT_NAME);
         $destination_address = $this->get_setting_with_default($settings, 'destination_address', self::DEFAULT_DESTINATION_ADDRESS);
 
+        // Check if we're in Elementor editor mode
+        $is_editor_mode = \Elementor\Plugin::$instance->editor->is_edit_mode();
+        $widget_class = $is_editor_mode ? 'destiny-destination-widget is-results' : 'destiny-destination-widget is-loading';
+
+
+
         $icon_svg = '';
         if (!empty($settings['directions_icon']['url'])) {
             // Only allow SVGs for security
@@ -329,7 +335,7 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
             $icon_svg = '<svg class="destiny-directions-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/></svg>';
         }
 ?>
-<div class="destiny-destination-widget is-loading" id="<?php echo esc_attr($unique_id); ?>"
+<div class="<?php echo esc_attr($widget_class); ?>" id="<?php echo esc_attr($unique_id); ?>"
     data-fallback-source="<?php echo esc_attr($settings['fallback_source']); ?>"
     data-destination="<?php echo esc_attr($destination_name); ?>"
     data-destination-address="<?php echo esc_attr($destination_address); ?>"
@@ -337,7 +343,8 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
     data-cache-time="<?php echo intval($settings['cache_time'] ?? 60); ?>">
 
     <div class="destiny-loading">
-        <svg fill="#000000FF" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+            style="width: 24px; height: 24px; display: block; margin: 10px auto;">
             <circle cx="4" cy="12" r="3" opacity="1">
                 <animate id="spinner_qYjJ" begin="0;spinner_t4KZ.end-0.25s" attributeName="opacity" dur="0.75s"
                     values="1;.2" fill="freeze" />
@@ -354,12 +361,12 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
     </div>
 
     <div class="destiny-error">
-        <span><?php echo __('Unable to get location', 'destiny-destination'); ?></span>
+        <span>Unable to get location</span>
     </div>
 
     <div class="destiny-results">
         <div class="destiny-route-subtitle">
-            <span class="destiny-source-label"></span>
+            <span class="destiny-source-label"><?php echo $is_editor_mode ? 'Din position' : ''; ?></span>
             <svg class="destiny-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M10 17l5-5-5-5v10z" />
             </svg>
@@ -369,7 +376,8 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
         </div>
         <div class="destiny-data-info">
             <span class="destiny-info">
-                <span class="destiny-time-value">15 min</span>
+                <span class="destiny-time-value" <?php echo $is_editor_mode ? ' style="color: green;"' : ''; ?>>15
+                    min</span>
                 <span class="destiny-distance-value"> (12.5 km)</span>
             </span>
             <a href="#" class="destiny-directions-link" target="_blank">
@@ -398,17 +406,14 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
         1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z\" /></svg>`;
     }
     #>
-    <div class="destiny-destination-widget is-loading" id="{{ unique_id }}"
-        data-fallback-source="{{ settings.fallback_source || 'Stockholm, Sverige' }}"
-        data-destination="{{ destination_name }}" data-destination-address="{{ destination_address }}"
-        data-enable-cache="{{ enable_cache }}" data-cache-time="{{ cache_time }}">
-        <div class="destiny-loading">
-            <span>{{ __('Loading...', 'destiny-destination') }}</span>
+    <div class="destiny-destination-widget" id="{{ unique_id }}">
+        <div class="destiny-loading" style="display: none;">
+            <span>Loading...</span>
         </div>
-        <div class="destiny-error">
-            <span>{{ __('Unable to get location', 'destiny-destination') }}</span>
+        <div class="destiny-error" style="display: none;">
+            <span>Unable to get location</span>
         </div>
-        <div class="destiny-results">
+        <div class="destiny-results" style="display: block;">
             <div class="destiny-route-subtitle">
                 <span class="destiny-source-label">Din position</span>
                 <svg class="destiny-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14"

@@ -208,18 +208,23 @@ jQuery(document).ready(function ($) {
       })
         .done(function (response) {
           console.log("AJAX response received:", response);
-          if (response.status === "success") {
-            global.cachedResponse = response;
+
+          if (response.success) {
+            console.log("Success condition met, updating widgets");
+            console.log("Response data:", response.data);
+
+            global.cachedResponse = response.data;
             global.finalOrigin = origin;
             global.usedFallback = usedFallback;
 
             // Update all pending widgets
             global.pendingWidgets.forEach(function (widgetData) {
-              widgetData.updateWidget(response);
+              console.log("Updating widget:", widgetData.widgetId);
+              widgetData.updateWidget(response.data);
             });
             global.pendingWidgets = [];
           } else {
-            console.log("API returned error status");
+            console.log("API returned error - message:", response.data);
             global.pendingWidgets.forEach(function (widgetData) {
               widgetData.showError();
             });
@@ -268,7 +273,13 @@ jQuery(document).ready(function ($) {
           "WIDGET INIT: Using cached global data immediately for widget:",
           widgetId
         );
-        updateDirectionsLink(global.finalOrigin);
+        // Use directions URL from cached response
+        if (global.cachedResponse.directions_url) {
+          widget
+            .find(".destiny-directions-link")
+            .attr("href", global.cachedResponse.directions_url);
+        }
+
         setSourceLabel(global.usedFallback);
         showResults(global.cachedResponse);
         return;
@@ -283,14 +294,20 @@ jQuery(document).ready(function ($) {
       // Add this widget to the pending list
       global.pendingWidgets.push({
         widgetId: widgetId,
-        updateWidget: function (response) {
+        updateWidget: function (data) {
           console.log(
             "PENDING UPDATE: Updating widget from pending list:",
             widgetId
           );
-          updateDirectionsLink(global.finalOrigin);
+          // Use directions URL from backend response
+          if (data.directions_url) {
+            widget
+              .find(".destiny-directions-link")
+              .attr("href", data.directions_url);
+          }
+
           setSourceLabel(global.usedFallback);
-          showResults(response);
+          showResults(data);
         },
         showError: function () {
           console.log(

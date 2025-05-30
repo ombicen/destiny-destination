@@ -14,11 +14,13 @@ class Destiny_Google_Maps_API
 
     public function __construct()
     {
-        $this->api_key = get_option('destiny_destination_google_api_key', '');
+        $this->api_key = function_exists('get_option') ? get_option('destiny_destination_google_api_key', '') : '';
 
         // Add admin hooks for settings
-        add_action('admin_menu', array($this, 'add_admin_menu'));
-        add_action('admin_init', array($this, 'register_settings'));
+        if (function_exists('add_action')) {
+            add_action('admin_menu', array($this, 'add_admin_menu'));
+            add_action('admin_init', array($this, 'register_settings'));
+        }
     }
 
     /**
@@ -70,7 +72,7 @@ class Destiny_Google_Maps_API
         // Generate cache key based on fallback source and destination
         $cache_key = '';
         // Cache only when we really used the fallback address
-        if ($enable_cache && $origin === $fallback_source) {
+        if ($enable_cache && $origin === $fallback_source && function_exists('get_transient')) {
             $cache_key = 'destiny_dest_' . md5($fallback_source . '_to_' . $destination);
             // Try to get cached data first
             $cached_data = get_transient($cache_key);
@@ -83,7 +85,7 @@ class Destiny_Google_Maps_API
         }
 
         // Log the input parameters
-        if (class_exists('Destiny_Destination')) {
+        if (class_exists('Destiny_Destination') && function_exists('get_transient')) {
             Destiny_Destination::log('get_distance_matrix called with origin: ' . $origin);
             Destiny_Destination::log('Destination: ' . $destination);
             Destiny_Destination::log('Fallback source: ' . $fallback_source);
@@ -228,7 +230,7 @@ class Destiny_Google_Maps_API
         }
 
         // Cache the result if caching is enabled and we have a valid cache key
-        if ($enable_cache && !empty($cache_key)) {
+        if ($enable_cache && !empty($cache_key) && function_exists('set_transient') && defined('MINUTE_IN_SECONDS')) {
             $cache_duration = $cache_time * MINUTE_IN_SECONDS;
             set_transient($cache_key, $result, $cache_duration);
             if (class_exists('Destiny_Destination')) {
@@ -325,7 +327,7 @@ class Destiny_Google_Maps_API
      */
     public function api_key_field_callback()
     {
-        $api_key = get_option('destiny_destination_google_api_key', '');
+        $api_key = function_exists('get_option') ? get_option('destiny_destination_google_api_key', '') : '';
         echo '<input type="text" id="destiny_destination_google_api_key" name="destiny_destination_google_api_key" value="' . esc_attr($api_key) . '" size="50" />';
         echo '<p class="description">Enter your Google Maps Distance Matrix API key.</p>';
     }
@@ -336,49 +338,49 @@ class Destiny_Google_Maps_API
     public function settings_page()
     {
 ?>
-        <div class="wrap">
-            <h1>Destiny Destination Settings</h1>
+<div class="wrap">
+    <h1>Destiny Destination Settings</h1>
 
-            <div class="notice notice-info">
-                <p><strong>Destination:</strong> Vallentuna bil och däckservice, Moränvägen 13, 186 40 Vallentuna</p>
-                <p>This widget calculates distance and travel time from the user's location (or fallback address) to the above
-                    destination.</p>
-            </div>
+    <div class="notice notice-info">
+        <p><strong>Destination:</strong> Vallentuna bil och däckservice, Moränvägen 13, 186 40 Vallentuna</p>
+        <p>This widget calculates distance and travel time from the user's location (or fallback address) to the above
+            destination.</p>
+    </div>
 
-            <form method="post" action="options.php">
-                <?php
+    <form method="post" action="options.php">
+        <?php
                 settings_fields('destiny_destination_settings');
                 do_settings_sections('destiny-destination-settings');
                 submit_button();
                 ?>
-            </form>
+    </form>
 
-            <div class="card">
-                <h2>Widget Usage</h2>
-                <p>To use this widget:</p>
-                <ol>
-                    <li>Edit any page with Elementor</li>
-                    <li>Search for "Destination Info" in the widget panel</li>
-                    <li>Drag the widget to your desired location</li>
-                    <li>Configure the settings in the widget panel</li>
-                    <li>Save and view your page</li>
-                </ol>
-            </div>
+    <div class="card">
+        <h2>Widget Usage</h2>
+        <p>To use this widget:</p>
+        <ol>
+            <li>Edit any page with Elementor</li>
+            <li>Search for "Destination Info" in the widget panel</li>
+            <li>Drag the widget to your desired location</li>
+            <li>Configure the settings in the widget panel</li>
+            <li>Save and view your page</li>
+        </ol>
+    </div>
 
-            <div class="card">
-                <h2>Caching</h2>
-                <p>The widget includes built-in caching functionality to improve performance and reduce API calls:</p>
-                <ul>
-                    <li><strong>Cache Strategy:</strong> Results are cached based on the fallback source address and destination
-                    </li>
-                    <li><strong>Cache Duration:</strong> Configurable per widget (1-1440 minutes)</li>
-                    <li><strong>Cache Storage:</strong> Uses WordPress transients for reliable storage</li>
-                    <li><strong>Performance Benefit:</strong> Reduces API calls when users have the same fallback location</li>
-                </ul>
-                <p><em>Note: GPS-based requests are not cached since user locations vary, only fallback address requests are
-                        cached.</em></p>
-            </div>
-        </div>
+    <div class="card">
+        <h2>Caching</h2>
+        <p>The widget includes built-in caching functionality to improve performance and reduce API calls:</p>
+        <ul>
+            <li><strong>Cache Strategy:</strong> Results are cached based on the fallback source address and destination
+            </li>
+            <li><strong>Cache Duration:</strong> Configurable per widget (1-1440 minutes)</li>
+            <li><strong>Cache Storage:</strong> Uses WordPress transients for reliable storage</li>
+            <li><strong>Performance Benefit:</strong> Reduces API calls when users have the same fallback location</li>
+        </ul>
+        <p><em>Note: GPS-based requests are not cached since user locations vary, only fallback address requests are
+                cached.</em></p>
+    </div>
+</div>
 <?php
     }
 }

@@ -283,5 +283,14 @@ function destiny_get_destination_info()
         $response = $google_maps->get_mock_data($origin);
     }
 
-    wp_send_json($response);
+    // Convert to WordPress AJAX format
+    if ($response['status'] === 'success') {
+        // Add additional fields for frontend
+        $response['source_display'] = $fallback_source;
+        $response['directions_url'] = 'https://www.google.com/maps/dir/?api=1&destination=' . urlencode($destination) . '&origin=' . urlencode($origin);
+
+        wp_send_json_success($response);
+    } else {
+        wp_send_json_error($response['message'] ?? 'Unknown error occurred');
+    }
 }
