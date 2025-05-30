@@ -81,6 +81,9 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
                 'label' => __('Fallback Source Address', 'destiny-destination'),
                 'type' => \Elementor\Controls_Manager::TEXT,
                 'default' => self::DEFAULT_FALLBACK_SOURCE,
+                'dynamic' => [
+                    'active' => true,
+                ],
                 'label_block' => true,
                 'placeholder' => __('Enter fallback address if GPS not available', 'destiny-destination'),
                 'description' => __('This address will be used if user location cannot be detected', 'destiny-destination'),
@@ -102,6 +105,9 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
                 'label' => __('Destination Name', 'destiny-destination'),
                 'type' => \Elementor\Controls_Manager::TEXT,
                 'default' => self::DEFAULT_DESTINATION_NAME,
+                'dynamic' => [
+                    'active' => true,
+                ],
                 'label_block' => true,
                 'placeholder' => __('Enter destination business name', 'destiny-destination'),
                 'description' => __('The name of the destination business', 'destiny-destination'),
@@ -113,6 +119,9 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
             [
                 'label' => __('Destination Short Name', 'destiny-destination'),
                 'type' => \Elementor\Controls_Manager::TEXT,
+                'dynamic' => [
+                    'active' => true,
+                ],
                 'default' => self::DEFAULT_DESTINATION_SHORT_NAME,
                 'label_block' => true,
                 'placeholder' => __('Enter short display name', 'destiny-destination'),
@@ -125,6 +134,9 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
             [
                 'label' => __('Destination Address', 'destiny-destination'),
                 'type' => \Elementor\Controls_Manager::TEXTAREA,
+                'dynamic' => [
+                    'active' => true,
+                ],
                 'default' => self::DEFAULT_DESTINATION_ADDRESS,
                 'placeholder' => __('Enter complete destination address', 'destiny-destination'),
                 'description' => __('Full address for Google Maps API and tooltip display', 'destiny-destination'),
@@ -362,58 +374,58 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
             $icon_svg = '<svg class="destiny-directions-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39 1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z"/></svg>';
         }
 ?>
-        <div class="<?php echo esc_attr($widget_class); ?>" id="<?php echo esc_attr($unique_id); ?>"
-            data-fallback-source="<?php echo esc_attr($settings['fallback_source']); ?>"
-            data-destination="<?php echo esc_attr($destination_name); ?>"
-            data-destination-address="<?php echo esc_attr($destination_address); ?>"
-            data-enable-cache="<?php echo esc_attr($settings['enable_cache'] === 'yes' ? 'yes' : 'no'); ?>"
-            data-cache-time="<?php echo intval($settings['cache_time'] ?? 60); ?>">
+<div class="<?php echo esc_attr($widget_class); ?>" id="<?php echo esc_attr($unique_id); ?>"
+    data-fallback-source="<?php echo esc_attr($settings['fallback_source']); ?>"
+    data-destination="<?php echo esc_attr($destination_name); ?>"
+    data-destination-address="<?php echo esc_attr($destination_address); ?>"
+    data-enable-cache="<?php echo esc_attr($settings['enable_cache'] === 'yes' ? 'yes' : 'no'); ?>"
+    data-cache-time="<?php echo intval($settings['cache_time'] ?? 60); ?>">
 
-            <div class="destiny-loading">
-                <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
-                    style="width: 24px; height: 24px; display: block; margin: 10px auto;">
-                    <circle cx="4" cy="12" r="3" opacity="1">
-                        <animate id="spinner_qYjJ" begin="0;spinner_t4KZ.end-0.25s" attributeName="opacity" dur="0.75s"
-                            values="1;.2" fill="freeze" />
-                    </circle>
-                    <circle cx="12" cy="12" r="3" opacity=".4">
-                        <animate begin="spinner_qYjJ.begin+0.15s" attributeName="opacity" dur="0.75s" values="1;.2"
-                            fill="freeze" />
-                    </circle>
-                    <circle cx="20" cy="12" r="3" opacity=".3">
-                        <animate id="spinner_t4KZ" begin="spinner_qYjJ.begin+0.3s" attributeName="opacity" dur="0.75s"
-                            values="1;.2" fill="freeze" />
-                    </circle>
-                </svg>
-            </div>
+    <div class="destiny-loading">
+        <svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+            style="width: 24px; height: 24px; display: block; margin: 10px auto;">
+            <circle cx="4" cy="12" r="3" opacity="1">
+                <animate id="spinner_qYjJ" begin="0;spinner_t4KZ.end-0.25s" attributeName="opacity" dur="0.75s"
+                    values="1;.2" fill="freeze" />
+            </circle>
+            <circle cx="12" cy="12" r="3" opacity=".4">
+                <animate begin="spinner_qYjJ.begin+0.15s" attributeName="opacity" dur="0.75s" values="1;.2"
+                    fill="freeze" />
+            </circle>
+            <circle cx="20" cy="12" r="3" opacity=".3">
+                <animate id="spinner_t4KZ" begin="spinner_qYjJ.begin+0.3s" attributeName="opacity" dur="0.75s"
+                    values="1;.2" fill="freeze" />
+            </circle>
+        </svg>
+    </div>
 
-            <div class="destiny-error">
-                <span>Unable to get location</span>
-            </div>
+    <div class="destiny-error">
+        <span>Unable to get location</span>
+    </div>
 
-            <div class="destiny-results">
-                <div class="destiny-route-subtitle">
-                    <span class="destiny-source-label"><?php echo $is_editor_mode ? 'Din position' : ''; ?></span>
-                    <svg class="destiny-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
-                        <path fill="currentColor" d="M10 17l5-5-5-5v10z" />
-                    </svg>
-                    <span class="destiny-destination-label"
-                        data-tippy-content="<strong><?php echo esc_attr($destination_name); ?></strong><br><?php echo esc_attr($destination_address); ?>"
-                        title="<?php echo esc_attr($destination_address); ?>"><?php echo esc_html($destination_short_name); ?></span>
-                </div>
-                <div class="destiny-data-info">
-                    <span class="destiny-info">
-                        <span class="destiny-time-value" <?php echo $is_editor_mode ? ' style="color: green;"' : ''; ?>>15
-                            min</span>
-                        <span class="destiny-distance-value"> (12.5 km)</span>
-                    </span>
-                    <a href="#" class="destiny-directions-link" target="_blank">
-                        <?php echo $icon_svg; ?>
-                    </a>
-                </div>
-            </div>
+    <div class="destiny-results">
+        <div class="destiny-route-subtitle">
+            <span class="destiny-source-label"><?php echo $is_editor_mode ? 'Din position' : ''; ?></span>
+            <svg class="destiny-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+                <path fill="currentColor" d="M10 17l5-5-5-5v10z" />
+            </svg>
+            <span class="destiny-destination-label"
+                data-tippy-content="<strong><?php echo esc_attr($destination_name); ?></strong><br><?php echo esc_attr($destination_address); ?>"
+                title="<?php echo esc_attr($destination_address); ?>"><?php echo esc_html($destination_short_name); ?></span>
         </div>
-    <?php
+        <div class="destiny-data-info">
+            <span class="destiny-info">
+                <span class="destiny-time-value" <?php echo $is_editor_mode ? ' style="color: green;"' : ''; ?>>15
+                    min</span>
+                <span class="destiny-distance-value"> (12.5 km)</span>
+            </span>
+            <a href="#" class="destiny-directions-link" target="_blank">
+                <?php echo $icon_svg; ?>
+            </a>
+        </div>
+    </div>
+</div>
+<?php
     }
 
     /**
@@ -422,46 +434,46 @@ class Destiny_Destination_Widget extends \Elementor\Widget_Base
     protected function content_template()
     {
     ?>
-        <# var unique_id='destiny-destination-' + view.model.id; var destination_name=settings.destination_name
-            || 'Vallentuna bil och däckservice' ; var destination_short_name=settings.destination_short_name || 'Verkstad' ; var
-            destination_address=settings.destination_address || 'Moränvägen 13, 186 40 Vallentuna, Sweden' ; var
-            enable_cache=settings.enable_cache || 'yes' ; var cache_time=settings.cache_time || 60; var icon='' ; if
-            (settings.directions_icon && settings.directions_icon.url) { icon='<img src="' + settings.directions_icon.url
-            + '" alt="Directions" class="destiny-directions-icon" />' ; } else { icon=`<svg class=\"destiny-directions-icon\"
-            xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\">
-            <path fill=\"currentColor\" d=\"M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39
-                1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z\" /></svg>`;
-            }
-            #>
-            <div class="destiny-destination-widget" id="{{ unique_id }}">
-                <div class="destiny-loading" style="display: none;">
-                    <span>Loading...</span>
-                </div>
-                <div class="destiny-error" style="display: none;">
-                    <span>Unable to get location</span>
-                </div>
-                <div class="destiny-results" style="display: block;">
-                    <div class="destiny-route-subtitle">
-                        <span class="destiny-source-label">Din position</span>
-                        <svg class="destiny-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                            viewBox="0 0 24 24">
-                            <path fill="currentColor" d="M10 17l5-5-5-5v10z" />
-                        </svg>
-                        <span class="destiny-destination-label"
-                            data-tippy-content="<strong>{{ destination_name }}</strong><br>{{ destination_address }}"
-                            title="{{ destination_address }}">{{ destination_short_name }}</span>
-                    </div>
-                    <div class="destiny-data-info">
-                        <span class="destiny-info">
-                            <span class="destiny-time-value" style="color:green;">15 min</span>
-                            <span class="destiny-distance-value"> (12.5 km)</span>
-                        </span>
-                        <a href="#" class="destiny-directions-link" target="_blank">
-                            {{{ icon }}}
-                        </a>
-                    </div>
-                </div>
+<# var unique_id='destiny-destination-' + view.model.id; var destination_name=settings.destination_name
+    || 'Vallentuna bil och däckservice' ; var destination_short_name=settings.destination_short_name || 'Verkstad' ; var
+    destination_address=settings.destination_address || 'Moränvägen 13, 186 40 Vallentuna, Sweden' ; var
+    enable_cache=settings.enable_cache || 'yes' ; var cache_time=settings.cache_time || 60; var icon='' ; if
+    (settings.directions_icon && settings.directions_icon.url) { icon='<img src="' + settings.directions_icon.url
+    + '" alt="Directions" class="destiny-directions-icon" />' ; } else { icon=`<svg class=\"destiny-directions-icon\"
+    xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\">
+    <path fill=\"currentColor\" d=\"M21.71 11.29l-9-9a.996.996 0 00-1.41 0l-9 9a.996.996 0 000 1.41l9 9c.39.39 1.02.39
+        1.41 0l9-9a.996.996 0 000-1.41zM14 14.5V12h-4v3H8v-4c0-.55.45-1 1-1h5V7.5l3.5 3.5-3.5 3.5z\" /></svg>`;
+    }
+    #>
+    <div class="destiny-destination-widget" id="{{ unique_id }}">
+        <div class="destiny-loading" style="display: none;">
+            <span>Loading...</span>
+        </div>
+        <div class="destiny-error" style="display: none;">
+            <span>Unable to get location</span>
+        </div>
+        <div class="destiny-results" style="display: block;">
+            <div class="destiny-route-subtitle">
+                <span class="destiny-source-label">Din position</span>
+                <svg class="destiny-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14"
+                    viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M10 17l5-5-5-5v10z" />
+                </svg>
+                <span class="destiny-destination-label"
+                    data-tippy-content="<strong>{{ destination_name }}</strong><br>{{ destination_address }}"
+                    title="{{ destination_address }}">{{ destination_short_name }}</span>
             </div>
+            <div class="destiny-data-info">
+                <span class="destiny-info">
+                    <span class="destiny-time-value" style="color:green;">15 min</span>
+                    <span class="destiny-distance-value"> (12.5 km)</span>
+                </span>
+                <a href="#" class="destiny-directions-link" target="_blank">
+                    {{{ icon }}}
+                </a>
+            </div>
+        </div>
+    </div>
     <?php
     }
 }
