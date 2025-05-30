@@ -3,7 +3,7 @@
 /**
  * Plugin Name: Destiny Destination Widget
  * Description: Elementor widget to display time and distance to Vallentuna bil och däckservice
- * Version: 1.0.0
+ * Version: 1.1.0
  * Author: Your Name
  * Text Domain: destiny-destination
  * Domain Path: /languages
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly.
 }
 
-define('DESTINY_DESTINATION_VERSION', '1.0.0');
+define('DESTINY_DESTINATION_VERSION', '1.1.0');
 define('DESTINY_DESTINATION_MINIMUM_ELEMENTOR_VERSION', '2.0.0');
 define('DESTINY_DESTINATION_MINIMUM_PHP_VERSION', '7.0');
 
@@ -103,7 +103,6 @@ final class Destiny_Destination
         // Add Plugin actions
         add_action('elementor/widgets/widgets_registered', array($this, 'init_widgets'));
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
-        add_action('elementor/frontend/after_register_scripts', array($this, 'frontend_scripts'));
 
         // Initialize Google Maps API
         new Destiny_Google_Maps_API();
@@ -170,15 +169,27 @@ final class Destiny_Destination
      */
     public function enqueue_scripts()
     {
-        wp_enqueue_script(
-            'destiny-destination-js',
-            plugins_url('/assets/js/destiny-destination.js', __FILE__),
-            ['jquery'],
-            DESTINY_DESTINATION_VERSION,
-            true
-        );
 
-        wp_localize_script('destiny-destination-js', 'destiny_destination_ajax', array(
+        if (!wp_script_is('tippy-js-main', 'enqueued')) {
+            wp_enqueue_script(
+                'popper-js',
+                'https://unpkg.com/@popperjs/core@2',
+                [],
+                '2.11.8',
+                true
+            );
+
+            wp_enqueue_script(
+                'tippy-js-main',
+                'https://unpkg.com/tippy.js@6',
+                ['popper-js'],
+                '6.3.7',
+                true
+            );
+        }
+
+
+        wp_localize_script('tippy-js-main', 'destiny_destination_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('destiny_destination_nonce')
         ));
@@ -188,20 +199,6 @@ final class Destiny_Destination
             plugins_url('/assets/css/destiny-destination.css', __FILE__),
             [],
             DESTINY_DESTINATION_VERSION
-        );
-    }
-
-    /**
-     * Frontend Scripts
-     */
-    public function frontend_scripts()
-    {
-        wp_register_script(
-            'destiny-destination-frontend',
-            plugins_url('/assets/js/destiny-destination-frontend.js', __FILE__),
-            ['jquery'],
-            DESTINY_DESTINATION_VERSION,
-            true
         );
     }
 }
@@ -216,7 +213,42 @@ function destiny_get_destination_info()
 {
     check_ajax_referer('destiny_destination_nonce', 'nonce');
 
-    $origin = sanitize_text_field($_POST['origin']);
+    $origin = sanitize_text_field($_POST['origin'] ?? '');
+    $widget_id = sanitize_text_field($_POST['widget_id'] ?? '');
+
+    // Debug log the received parameters
+    if (class_exists('Destiny_Destination')) {
+        Destiny_Destination::log('AJAX Handler - Widget ID: ' . $widget_id);
+        Destiny_Destination::log('AJAX Handler - Origin: ' . $origin);
+    }
+
+    // Only process requests from our widgets
+    if (!isset($_POST['widget_id']) || substr($_POST['widget_id'], 0, 20) !== 'destiny-destination-') {
+        if (class_exists('Destiny_Destination')) {
+            Destiny_Destination::log('AJAX Handler - Rejecting request: Invalid or missing widget_id', 'WARNING');
+        }
+        wp_send_json_error('Invalid request source');
+        return;
+    }
+
+    // Backend-controlled settings
+    $destination = 'Moränvägen 13, 186 40 Vallentuna, Sweden'; // Default destination
+    $fallback_source = 'Stockholm, Sverige'; // Default fallback
+
+    // Determine if this is a fallback request (not GPS coordinates)
+    $is_fallback_request = !preg_match('/^-?\d+\.?\d*,-?\d+\.?\d*$/', $origin);
+
+    // Enable cache only for fallback requests
+    $enable_cache = $is_fallback_request;
+    $cache_time = 60; // Default cache time in minutes
+
+    if (class_exists('Destiny_Destination')) {
+        Destiny_Destination::log('AJAX Handler - Destination: ' . $destination);
+        Destiny_Destination::log('AJAX Handler - Fallback source: ' . $fallback_source);
+        Destiny_Destination::log('AJAX Handler - Is fallback request: ' . ($is_fallback_request ? 'yes' : 'no'));
+        Destiny_Destination::log('AJAX Handler - Enable cache: ' . ($enable_cache ? 'yes' : 'no'));
+        Destiny_Destination::log('AJAX Handler - Cache time: ' . $cache_time);
+    }
 
     // Initialize Google Maps API
     $google_maps = new Destiny_Google_Maps_API();
@@ -225,7 +257,7 @@ function destiny_get_destination_info()
     $api_key = get_option('destiny_destination_google_api_key', '');
 
     if (!empty($api_key)) {
-        $response = $google_maps->get_distance_matrix($origin);
+        $response = $google_maps->get_distance_matrix($origin, $destination, $fallback_source, $enable_cache, $cache_time);
     } else {
         $response = $google_maps->get_mock_data($origin);
     }

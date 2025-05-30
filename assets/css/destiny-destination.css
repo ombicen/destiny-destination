@@ -4,11 +4,9 @@
     transition: all 0.3s ease;
 }
 .destiny-data-info{
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap:10px;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr auto;
    
 }
 
@@ -110,6 +108,7 @@
     align-items: center;
     gap: 3px;
     margin-bottom: 2px;
+    position: relative;
 }
 
 .destiny-chevron {
@@ -120,14 +119,51 @@
 .destiny-destination-label {
     cursor: help;
     border-bottom: 1px dotted #888;
+    transition: all 0.2s ease;
 }
 
+.destiny-destination-label:hover {
+    border-bottom-color: #007cba;
+    color: #007cba;
+}
+
+span.destiny-info {
+    display: flex;
+    align-items: center;
+}
 .destiny-directions-link {
     text-decoration: none;
+    box-shadow: none;
+    display: flex;
+    aspect-ratio: 1;
+    align-items: center;
+    &>img{
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        object-position: center center;
+    }
 }
 
 .destiny-directions-icon {
     vertical-align: middle;
+}
+
+/* Tippy.js Tooltip Styling */
+.tippy-box {
+    font-family: inherit, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.tippy-content {
+    font-family: inherit;
+    padding: 8px 12px;
+}
+
+.tippy-content strong {
+    font-weight: 600;
+    color: #97dcff;
 }
 
 /* Responsive Design */

@@ -75,18 +75,15 @@ For real-time distance and duration data:
 
 ```
 destiny-destination/
-├── destiny-destination.php          # Main plugin file
+├── destiny-destination.php              # Main plugin file
 ├── widgets/
-│   └── destination-widget.php       # Elementor widget class
+│   └── destination-widget.php           # Elementor widget
 ├── includes/
-│   └── class-google-maps-api.php    # Google Maps API integration
+│   └── class-google-maps-api.php        # Google Maps API integration
 ├── assets/
-│   ├── css/
-│   │   └── destiny-destination.css  # Widget styles
-│   └── js/
-│       ├── destiny-destination.js   # Main JavaScript
-│       └── destiny-destination-frontend.js # Frontend utilities
-└── README.md                        # This file
+│   └── css/
+│       └── destiny-destination.css      # Widget styles
+└── README.md                            # This file
 ```
 
 ## Browser Support
