@@ -1,11 +1,31 @@
 /* Destiny Destination Widget Styles */
 .destiny-destination-widget {
-   
     transition: all 0.3s ease;
 }
+
+/* State-based display control */
+.destiny-destination-widget .destiny-loading,
+.destiny-destination-widget .destiny-error,
+.destiny-destination-widget .destiny-results {
+    display: none;
+}
+
+.destiny-destination-widget.is-loading .destiny-loading {
+    display: flex;
+}
+
+.destiny-destination-widget.is-error .destiny-error {
+    display: block;
+}
+
+.destiny-destination-widget.is-results .destiny-results {
+    display: block;
+}
+
 .destiny-data-info{
     display: grid;
     gap: 10px;
+    width: fit-content;
     grid-template-columns: 1fr auto;
    
 }
@@ -25,31 +45,16 @@
     text-align: center;
 }
 
-.destiny-loading p {
-    margin: 0;
-    padding: 20px;
-    font-style: italic;
-    color: #666;
+.destiny-loading{
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-}
+    & > svg{
+    max-width: 70px;
+    width: 100%;
+}}
 
-.destiny-loading p::before {
-    content: "";
-    width: 20px;
-    height: 20px;
-    border: 2px solid #007cba;
-    border-top: 2px solid transparent;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-}
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
 
 .destiny-error p {
     margin: 0;

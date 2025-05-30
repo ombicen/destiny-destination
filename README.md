@@ -81,8 +81,10 @@ destiny-destination/
 ├── includes/
 │   └── class-google-maps-api.php        # Google Maps API integration
 ├── assets/
-│   └── css/
-│       └── destiny-destination.css      # Widget styles
+│   ├── css/
+│   │   └── destiny-destination.css      # Widget styles
+│   └── js/
+│       └── destiny-destination-widget.js # Widget JavaScript
 └── README.md                            # This file
 ```
 

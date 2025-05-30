@@ -169,7 +169,34 @@ final class Destiny_Destination
      */
     public function enqueue_scripts()
     {
+        // Always enqueue jQuery
+        wp_enqueue_script('jquery');
 
+        // Create a minimal script handle for our AJAX localization
+        wp_register_script(
+            'destiny-destination-ajax',
+            false, // No file, just for localization
+            ['jquery'],
+            DESTINY_DESTINATION_VERSION,
+            true
+        );
+        wp_enqueue_script('destiny-destination-ajax');
+
+        wp_localize_script('destiny-destination-ajax', 'destiny_destination_ajax', array(
+            'ajax_url' => admin_url('admin-ajax.php'),
+            'nonce' => wp_create_nonce('destiny_destination_nonce')
+        ));
+
+        // Main widget JavaScript
+        wp_enqueue_script(
+            'destiny-destination-widget',
+            plugins_url('/assets/js/destiny-destination-widget.js', __FILE__),
+            ['jquery', 'destiny-destination-ajax'],
+            DESTINY_DESTINATION_VERSION,
+            true
+        );
+
+        // Tippy.js for tooltips (optional)
         if (!wp_script_is('tippy-js-main', 'enqueued')) {
             wp_enqueue_script(
                 'popper-js',
@@ -187,12 +214,6 @@ final class Destiny_Destination
                 true
             );
         }
-
-
-        wp_localize_script('tippy-js-main', 'destiny_destination_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('destiny_destination_nonce')
-        ));
 
         wp_enqueue_style(
             'destiny-destination-css',
